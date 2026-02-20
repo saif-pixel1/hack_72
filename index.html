@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nature Meditation Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@200;300;400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --forest:   #1a2e1e;
+    --moss:     #2d4a2f;
+    --sage:     #7a9e7e;
+    --mist:     #c8d8c4;
+    --cream:    #f5f0e6;
+    --bark:     #5c4033;
+    --gold:     #c8a96e;
+    --text:     #2a1f14;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--forest);
+    color: var(--cream);
+    font-family: 'Jost', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* Ambient background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 20% 0%, rgba(45,74,47,0.8) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 80% at 80% 100%, rgba(26,46,30,0.9) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 40% at 50% 50%, rgba(122,158,126,0.05) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Floating leaf particles */
+  .leaves-canvas {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    overflow: hidden;
+  }
+
+  .leaf {
+    position: absolute;
+    width: 8px;
+    height: 12px;
+    background: rgba(122,158,126,0.15);
+    border-radius: 50% 0 50% 0;
+    animation: fall linear infinite;
+    top: -20px;
+  }
+
+  @keyframes fall {
+    0%   { transform: translateY(0) rotate(0deg) translateX(0); opacity: 0; }
+    10%  { opacity: 1; }
+    90%  { opacity: 0.5; }
+    100% { transform: translateY(105vh) rotate(360deg) translateX(40px); opacity: 0; }
+  }
+
+  /* Main container */
+  .container {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 680px;
+    padding: 60px 32px 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+
+  /* Header */
+  .eyebrow {
+    font-family: 'Jost', sans-serif;
+    font-weight: 200;
+    font-size: 10px;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: var(--sage);
+    margin-bottom: 18px;
+    opacity: 0;
+    animation: rise 0.8s 0.2s ease forwards;
+  }
+
+  h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: clamp(38px, 7vw, 58px);
+    line-height: 1.1;
+    text-align: center;
+    color: var(--cream);
+    margin-bottom: 12px;
+    opacity: 0;
+    animation: rise 0.8s 0.35s ease forwards;
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--gold);
+  }
+
+  .subtitle {
+    font-size: 13px;
+    color: var(--mist);
+    letter-spacing: 0.5px;
+    text-align: center;
+    line-height: 1.6;
+    margin-bottom: 52px;
+    opacity: 0;
+    animation: rise 0.8s 0.5s ease forwards;
+  }
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Input section */
+  .input-wrap {
+    width: 100%;
+    position: relative;
+    margin-bottom: 20px;
+    opacity: 0;
+    animation: rise 0.8s 0.65s ease forwards;
+  }
+
+  .input-wrap label {
+    display: block;
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--sage);
+    margin-bottom: 12px;
+  }
+
+  .input-row {
+    display: flex;
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  .location-input {
+    flex: 1;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(122,158,126,0.25);
+    border-radius: 4px;
+    color: var(--cream);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 300;
+    font-style: italic;
+    padding: 16px 20px;
+    outline: none;
+    transition: border-color 0.3s, background 0.3s;
+    width: 100%;
+  }
+
+  .location-input::placeholder {
+    color: rgba(200,216,196,0.3);
+    font-style: italic;
+  }
+
+  .location-input:focus {
+    border-color: rgba(122,158,126,0.7);
+    background: rgba(255,255,255,0.07);
+  }
+
+  .go-btn {
+    background: var(--sage);
+    border: none;
+    border-radius: 4px;
+    color: var(--forest);
+    font-family: 'Jost', sans-serif;
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 16px 28px;
+    cursor: pointer;
+    transition: background 0.25s, transform 0.15s;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .go-btn:hover { background: var(--mist); }
+  .go-btn:active { transform: scale(0.97); }
+  .go-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  /* Suggestions */
+  .suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 14px;
+    opacity: 0;
+    animation: rise 0.8s 0.8s ease forwards;
+  }
+
+  .suggestion-chip {
+    background: rgba(122,158,126,0.1);
+    border: 1px solid rgba(122,158,126,0.2);
+    border-radius: 100px;
+    color: var(--mist);
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    padding: 6px 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .suggestion-chip:hover {
+    background: rgba(122,158,126,0.2);
+    border-color: rgba(122,158,126,0.5);
+    color: var(--cream);
+  }
+
+  /* Divider */
+  .divider {
+    width: 1px;
+    height: 48px;
+    background: linear-gradient(to bottom, transparent, rgba(122,158,126,0.3), transparent);
+    margin: 36px 0;
+  }
+
+  /* Breathing orb */
+  .orb-section {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    margin: 16px 0 40px;
+  }
+
+  .orb-label {
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--sage);
+  }
+
+  .orb-wrap {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .orb-ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 1px solid rgba(122,158,126,0.3);
+    animation: breathe-ring 8s ease-in-out infinite;
+  }
+
+  .orb-ring:nth-child(2) {
+    inset: -12px;
+    border-color: rgba(122,158,126,0.15);
+    animation-delay: 0.5s;
+  }
+
+  .orb-ring:nth-child(3) {
+    inset: -24px;
+    border-color: rgba(122,158,126,0.07);
+    animation-delay: 1s;
+  }
+
+  .orb-core {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(122,158,126,0.5) 0%, rgba(45,74,47,0.3) 100%);
+    animation: breathe-core 8s ease-in-out infinite;
+    box-shadow: 0 0 30px rgba(122,158,126,0.2);
+  }
+
+  @keyframes breathe-ring {
+    0%, 100% { transform: scale(1); opacity: 0.6; }
+    50%       { transform: scale(1.15); opacity: 1; }
+  }
+
+  @keyframes breathe-core {
+    0%, 100% { transform: scale(0.85); opacity: 0.7; }
+    50%       { transform: scale(1.1);  opacity: 1; }
+  }
+
+  .breath-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 13px;
+    font-style: italic;
+    color: var(--mist);
+    letter-spacing: 1px;
+    animation: breath-label 8s ease-in-out infinite;
+  }
+
+  @keyframes breath-label {
+    0%, 40%  { content: 'inhale'; }
+    50%, 90% { content: 'exhale'; }
+  }
+
+  /* Script output */
+  .script-section {
+    display: none;
+    width: 100%;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .script-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+
+  .script-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--sage);
+  }
+
+  .duration-badge {
+    background: rgba(122,158,126,0.12);
+    border: 1px solid rgba(122,158,126,0.25);
+    border-radius: 100px;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--sage);
+    padding: 5px 14px;
+  }
+
+  .script-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(122,158,126,0.15);
+    border-radius: 8px;
+    padding: 36px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .script-card::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(to bottom, var(--sage), transparent);
+  }
+
+  .script-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 21px;
+    font-weight: 300;
+    line-height: 1.85;
+    color: var(--cream);
+    letter-spacing: 0.2px;
+    min-height: 40px;
+  }
+
+  /* Cursor blink */
+  .cursor {
+    display: inline-block;
+    width: 2px;
+    height: 1.1em;
+    background: var(--sage);
+    margin-left: 3px;
+    vertical-align: text-bottom;
+    animation: blink 0.9s step-end infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0; }
+  }
+
+  /* Bottom actions */
+  .actions {
+    display: none;
+    gap: 12px;
+    margin-top: 24px;
+    justify-content: center;
+  }
+
+  .action-btn {
+    background: transparent;
+    border: 1px solid rgba(122,158,126,0.3);
+    border-radius: 4px;
+    color: var(--mist);
+    font-family: 'Jost', sans-serif;
+    font-size: 10px;
+    font-weight: 300;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 12px 22px;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+
+  .action-btn:hover {
+    border-color: var(--sage);
+    color: var(--cream);
+    background: rgba(122,158,126,0.08);
+  }
+
+  /* Footer */
+  footer {
+    position: relative;
+    z-index: 2;
+    padding: 0 0 40px;
+    text-align: center;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    color: rgba(122,158,126,0.35);
+    text-transform: uppercase;
+  }
+
+  /* Error */
+  .error-msg {
+    display: none;
+    color: #e07070;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    text-align: center;
+    margin-top: 16px;
+    font-style: italic;
+  }
+
+  @media (max-width: 480px) {
+    .container { padding: 40px 20px 60px; }
+    .script-card { padding: 24px 24px; }
+    .script-text { font-size: 18px; }
+    .input-row { flex-direction: column; }
+    .go-btn { padding: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Floating leaves -->
+<div class="leaves-canvas" id="leavesCanvas"></div>
+
+<div class="container">
+  <div class="eyebrow">Mindful Breathing</div>
+  <h1>Find stillness in<br><em>nature's embrace</em></h1>
+  <p class="subtitle">Enter a natural setting and receive a guided<br>one-minute breathing meditation, written just for that place.</p>
+
+  <div class="input-wrap">
+    <label for="locationInput">Your sanctuary</label>
+    <div class="input-row">
+      <input
+        type="text"
+        id="locationInput"
+        class="location-input"
+        placeholder="e.g. Pine Forest, Ocean Cliff, Bamboo Grove…"
+        maxlength="80"
+        autocomplete="off"
+      />
+      <button class="go-btn" id="goBtn" onclick="generateMeditation()">Begin</button>
+    </div>
+    <div class="suggestions">
+      <span class="suggestion-chip" onclick="useLocation('Pine Forest')">🌲 Pine Forest</span>
+      <span class="suggestion-chip" onclick="useLocation('Ocean Shore')">🌊 Ocean Shore</span>
+      <span class="suggestion-chip" onclick="useLocation('Alpine Meadow')">🏔️ Alpine Meadow</span>
+      <span class="suggestion-chip" onclick="useLocation('Bamboo Grove')">🎋 Bamboo Grove</span>
+      <span class="suggestion-chip" onclick="useLocation('Desert at Dawn')">🌅 Desert at Dawn</span>
+      <span class="suggestion-chip" onclick="useLocation('Rainy Rainforest')">🌧️ Rainforest</span>
+    </div>
+  </div>
+
+  <div class="error-msg" id="errorMsg"></div>
+
+  <!-- Breathing orb (shown during + after generation) -->
+  <div class="orb-section" id="orbSection">
+    <div class="orb-label">Breathe with the rhythm</div>
+    <div class="orb-wrap">
+      <div class="orb-ring"></div>
+      <div class="orb-ring"></div>
+      <div class="orb-ring"></div>
+      <div class="orb-core"></div>
+    </div>
+    <div class="breath-text" id="breathText">inhale slowly…</div>
+  </div>
+
+  <!-- Script output -->
+  <div class="script-section" id="scriptSection">
+    <div class="script-header">
+      <div class="script-title" id="scriptTitle">Meditation Script</div>
+      <div class="duration-badge">~1 minute</div>
+    </div>
+    <div class="script-card">
+      <div class="script-text" id="scriptText"></div>
+    </div>
+  </div>
+
+  <div class="actions" id="actions">
+    <button class="action-btn" onclick="generateMeditation()">↻ &nbsp;New Session</button>
+    <button class="action-btn" onclick="copyScript()">⎘ &nbsp;Copy Script</button>
+  </div>
+</div>
+
+<footer>Nature Meditation · Powered by Claude</footer>
+
+<script>
+  /* ── Leaf particles ── */
+  const canvas = document.getElementById('leavesCanvas');
+  for (let i = 0; i < 18; i++) {
+    const l = document.createElement('div');
+    l.className = 'leaf';
+    l.style.left = Math.random() * 100 + 'vw';
+    l.style.animationDuration = (14 + Math.random() * 20) + 's';
+    l.style.animationDelay = (Math.random() * 20) + 's';
+    l.style.opacity = 0.1 + Math.random() * 0.25;
+    l.style.transform = `rotate(${Math.random()*360}deg)`;
+    canvas.appendChild(l);
+  }
+
+  /* ── Breath text cycle ── */
+  const breathPhrases = ['inhale slowly…', 'hold gently…', 'exhale fully…', 'rest here…'];
+  let breathIdx = 0;
+  setInterval(() => {
+    breathIdx = (breathIdx + 1) % breathPhrases.length;
+    document.getElementById('breathText').textContent = breathPhrases[breathIdx];
+  }, 2000);
+
+  /* ── Suggestion chips ── */
+  function useLocation(loc) {
+    document.getElementById('locationInput').value = loc;
+    document.getElementById('locationInput').focus();
+  }
+
+  /* ── Enter key ── */
+  document.getElementById('locationInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') generateMeditation();
+  });
+
+  /* ── Main generation ── */
+  async function generateMeditation() {
+    const location = document.getElementById('locationInput').value.trim();
+    if (!location) {
+      showError('Please enter a natural location to begin.');
+      return;
+    }
+
+    const btn = document.getElementById('goBtn');
+    const scriptSection = document.getElementById('scriptSection');
+    const scriptText = document.getElementById('scriptText');
+    const scriptTitle = document.getElementById('scriptTitle');
+    const orbSection = document.getElementById('orbSection');
+    const actions = document.getElementById('actions');
+    const errorMsg = document.getElementById('errorMsg');
+
+    errorMsg.style.display = 'none';
+    btn.disabled = true;
+    btn.textContent = '…';
+
+    orbSection.style.display = 'flex';
+    scriptSection.style.display = 'flex';
+    actions.style.display = 'none';
+    scriptText.innerHTML = '<span class="cursor"></span>';
+    scriptTitle.textContent = `${location} — Meditation`;
+
+    const prompt = `You are a serene meditation guide. Write a gentle, flowing 1-minute guided breathing meditation script set in a "${location}". 
+
+The script should:
+- Be approximately 160–180 words (suitable for 1 minute of slow reading aloud)
+- Open by grounding the listener in the specific sights, sounds, and scents of ${location}
+- Guide through 3 natural breath cycles woven into the environment (e.g. breathing in the scent of pine, exhaling tension like mist)
+- Use soft, sensory, present-tense language
+- Close with a moment of stillness and gratitude
+- Flow as one continuous paragraph without headers or bullet points
+- Never use the word "meditation" or "exercise" — keep it purely immersive
+
+Write only the script itself, nothing else.`;
+
+    try {
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1024,
+          stream: true,
+          messages: [{ role: 'user', content: prompt }]
+        })
+      });
+
+      if (!response.ok) throw new Error('API error: ' + response.status);
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let fullText = '';
+      scriptText.innerHTML = '';
+      const cursor = document.createElement('span');
+      cursor.className = 'cursor';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split('\n');
+
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          const data = line.slice(6).trim();
+          if (data === '[DONE]') break;
+          try {
+            const parsed = JSON.parse(data);
+            const delta = parsed.delta?.text || parsed.delta?.type === 'text_delta' ? parsed.delta?.text : '';
+            if (delta) {
+              fullText += delta;
+              scriptText.textContent = fullText;
+              scriptText.appendChild(cursor);
+              // Auto-scroll
+              scriptText.parentElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+          } catch (_) {}
+        }
+      }
+
+      // Done — remove cursor, show actions
+      cursor.remove();
+      scriptText.textContent = fullText;
+      actions.style.display = 'flex';
+
+    } catch (err) {
+      console.error(err);
+      scriptText.textContent = '';
+      showError('Something went quiet — please try again.');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Begin';
+    }
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('errorMsg');
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+
+  function copyScript() {
+    const text = document.getElementById('scriptText').textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = event.target;
+      btn.textContent = '✓ Copied';
+      setTimeout(() => btn.textContent = '⎘  Copy Script', 2000);
+    });
+  }
+</script>
+</body>
+</html>
